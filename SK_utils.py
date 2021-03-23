@@ -73,7 +73,7 @@ def readPSF(psf):
 	#		but for detections further away from any CB boresight you might want
 	#		to reduce that. 
 
-	psf_ar[psf_ar<0.1] = 0
+	#psf_ar[psf_ar<0.1] = 0
 
 	return psf_ar
 
