@@ -92,7 +92,7 @@ def make_plot(array_height,array_width,c,psf_ar,options,data):
         for j in range(0,len(c)):
             stdout.write("\rComputing localisation curves for beam %d vs %d/%d..." % (j+1,i+1,len(c)))
             stdout.flush()
-            if i!=j and data["SN"][i]+data["SN"][j] >= sum_threshold:
+            if i<j and data["SN"][i]+data["SN"][j] >= sum_threshold:
                 #f, ax = plt.subplots()
 
                 plt.scatter(c.ra.px,c.dec.px,color='white',s=0.2)
