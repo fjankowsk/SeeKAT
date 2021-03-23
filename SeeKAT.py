@@ -73,7 +73,7 @@ def make_plot(array_height,array_width,c,psf_ar,options,data):
 
     full_ar = np.zeros((array_height,array_width))
 
-    likelihood = np.zeros((array_height,array_width))
+    loglikelihood = np.zeros((array_height,array_width))
 
     for i in range(0,len(c)):
         #print i
@@ -114,19 +114,19 @@ def make_plot(array_height,array_width,c,psf_ar,options,data):
                 beam_snr = data["SN"][i]
                 comparison_snr = data["SN"][j]
 
-                likelihood = localise(beam_snr,comparison_snr,beam_ar,comparison_ar,likelihood)
+                loglikelihood = localise(beam_snr,comparison_snr,beam_ar,comparison_ar,loglikelihood)
                 #Splot.make_ticks(array_width,array_height,w,fineness=40)
                 #Splot.likelihoodPlot(ax,likelihood)
                 #plt.show()
                 #plt.savefig('Frame%d_%d' % (i,j),dpi=300)
     #plt.imshow(full_ar,origin='lower',cmap='inferno')
-    #plt.show()	
-    likelihood /= np.amax(likelihood)
+    #plt.show()
+    #likelihood /= np.amax(likelihood)
     
-    return likelihood
+    return loglikelihood
 
 
-def localise(beam_snr,comparison_snr,beam_ar,comparison_ar,likelihood):
+def localise(beam_snr,comparison_snr,beam_ar,comparison_ar,loglikelihood):
 	'''
 	Plots contours where the ratio of the S/N detected in each 
 	beam to the highest-S/N detection matches the ratio of 
@@ -137,17 +137,19 @@ def localise(beam_snr,comparison_snr,beam_ar,comparison_ar,likelihood):
 
 	ratio_snr = beam_snr/comparison_snr		
 
-	error = (1/beam_snr) + (1/comparison_snr)
-				
+        error = (1/beam_snr) + (1/comparison_snr)
+
 	lower_bound = ratio_snr - error
 	upper_bound = ratio_snr + error
-	
+
 	gaussian = np.exp(-np.power(ratio_ar - ratio_snr, 2.) / (2 * np.power(error, 2.)))
-	gaussian = np.nan_to_num(gaussian)	
+        gaussian /= 2.0 * np.pi * error
+        gaussian = np.nan_to_num(gaussian)
+        gaussian = np.log(gaussian)
 
-	likelihood += gaussian
+	loglikelihood += gaussian
 
-	return likelihood
+	return loglikelihood
 
 if __name__ == "__main__":
     
@@ -167,8 +169,8 @@ if __name__ == "__main__":
 
     Splot.make_ticks(array_width,array_height,w,fineness=50)
     
-    likelihood = make_plot(array_height,array_width,c,psf_ar,options,data)
-    
+    loglikelihood = make_plot(array_height,array_width,c,psf_ar,options,data)
+    likelihood = np.exp(loglikelihood - np.nanmax(loglikelihood))
     Splot.likelihoodPlot(ax,likelihood)
     max_deg = []
     max_loc = np.where(likelihood==np.amax(likelihood))
