@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     Splot.make_ticks(array_width,array_height,w,fineness=10)
     
-    fullbandLikelihood = np.zeros((array_height,array_width))
+    fullbandlogLikelihood = np.zeros((array_height,array_width))
     for subband in range(0,psfCube.shape[2]):
         print "\n---Localising in subband %d/%d---" % (subband+1,psfCube.shape[2])
         subbandSNRs = []
@@ -105,16 +105,15 @@ if __name__ == "__main__":
                 subbandSNRs.append(line["SNR"])
         subbandData = {"SN":np.asarray(subbandSNRs)}
 
-        likelihood = SK.make_plot(array_height,array_width,c,psfCube[:,:,subband],options,subbandData)
+        loglikelihood = SK.make_plot(array_height,array_width,c,psfCube[:,:,subband],options,subbandData)
        #plt.imshow(likelihood)
         #plt.show()
+        fullbandlogLikelihood+=loglikelihood
 
-        fullbandLikelihood+=likelihood**np.max(subbandData["SN"])
-        fullbandLikelihood /= np.amax(fullbandLikelihood)
-  
-    Splot.likelihoodPlot(ax,fullbandLikelihood)
+    fullbandlogLikelihood = np.exp(fullbandlogLikelihood - np.nanmax(fullbandlogLikelihood))
+    Splot.likelihoodPlot(ax,fullbandlogLikelihood)
     max_deg = []
-    max_loc = np.where(fullbandLikelihood==np.amax(fullbandLikelihood))
+    max_loc = np.where(fullbandlogLikelihood==np.amax(fullbandlogLikelihood))
     if len(max_loc) == 2:
         max_loc = (max_loc[1],max_loc[0])
         ut.printCoords(max_loc,w)
