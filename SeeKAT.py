@@ -137,9 +137,9 @@ def localise(beam_snr,comparison_snr,beam_ar,comparison_ar,loglikelihood):
 
 	ratio_snr = beam_snr/comparison_snr		
 
-        error = (1/beam_snr) + (1/comparison_snr)
+        error = (1.0 / comparison_snr) + (beam_snr / comparison_snr ** 2)
 
-	lower_bound = ratio_snr - error
+        lower_bound = ratio_snr - error
 	upper_bound = ratio_snr + error
 
 	gaussian = np.exp(-np.power(ratio_ar - ratio_snr, 2.) / (2 * np.power(error, 2.)))
