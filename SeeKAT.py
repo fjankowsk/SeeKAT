@@ -11,6 +11,20 @@ import SK_utils as ut
 import SK_coordinates as co
 import SK_plotting as Splot
 
+from scipy.stats import norm
+
+def ratio_likelihood(z,S1,S2,dS1=1.0,dS2=1.0):
+
+        a = np.sqrt(z ** 2 / dS1 ** 2 + 1.0 / dS2 ** 2)
+        b = S1 / dS1 ** 2 * z + S2 / dS2 ** 2
+        c = S1 ** 2 / dS1 ** 2 + S2 ** 2 / dS2 ** 2
+        d = np.exp((b ** 2 - c * a ** 2) / (2 * a ** 2))
+
+        like = (1.0/(np.sqrt(2.0 * np.pi) * dS1 * dS2) * b * d / a ** 3
+                * (norm.cdf(b/a,scale=1.0) - norm.cdf(-b/a,scale=1.0))
+                + 1.0/(a ** 2 * np.pi * dS1 * dS2) * np.exp(-c/2))
+
+        return like
 
 def parseOptions(parser):
 	'''Options:
@@ -132,24 +146,15 @@ def localise(beam_snr,comparison_snr,beam_ar,comparison_ar,loglikelihood):
 	beam to the highest-S/N detection matches the ratio of 
 	those beams' PSFs. 1-sigma errors are also drawn.
 	'''
-    
-	ratio_ar = np.divide(beam_ar,comparison_ar)
 
-	ratio_snr = beam_snr/comparison_snr		
+        ratio_ar = np.divide(beam_ar,comparison_ar)
 
-        error = (1.0 / comparison_snr) + (beam_snr / comparison_snr ** 2)
+        like = ratio_likelihood(ratio_ar,beam_snr,comparison_snr)
+        logl = np.nan_to_num(like)
 
-        lower_bound = ratio_snr - error
-	upper_bound = ratio_snr + error
+        loglikelihood += np.log(logl)
 
-	gaussian = np.exp(-np.power(ratio_ar - ratio_snr, 2.) / (2 * np.power(error, 2.)))
-        gaussian /= 2.0 * np.pi * error
-        gaussian = np.nan_to_num(gaussian)
-        gaussian = np.log(gaussian)
-
-	loglikelihood += gaussian
-
-	return loglikelihood
+        return loglikelihood
 
 if __name__ == "__main__":
     
