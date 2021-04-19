@@ -84,7 +84,6 @@ def make_plot(array_height,array_width,c,psf_ar,options,data):
     
     sum_threshold = ut.get_best_pairs(data,options.npairs[0])   # Only beam pairs with S/N summing to above this
                                                                 # number will be used for localisation
-
     full_ar = np.zeros((array_height,array_width))
 
     loglikelihood = np.zeros((array_height,array_width))
@@ -106,6 +105,7 @@ def make_plot(array_height,array_width,c,psf_ar,options,data):
         for j in range(0,len(c)):
             stdout.write("\rComputing localisation curves for beam %d vs %d/%d..." % (j+1,i+1,len(c)))
             stdout.flush()
+
             if i<j and data["SN"][i]+data["SN"][j] >= sum_threshold:
                 #f, ax = plt.subplots()
 
@@ -136,7 +136,6 @@ def make_plot(array_height,array_width,c,psf_ar,options,data):
     #plt.imshow(full_ar,origin='lower',cmap='inferno')
     #plt.show()
     #likelihood /= np.amax(likelihood)
-    
     return loglikelihood
 
 
@@ -176,13 +175,28 @@ if __name__ == "__main__":
     
     loglikelihood = make_plot(array_height,array_width,c,psf_ar,options,data)
     likelihood = np.exp(loglikelihood - np.nanmax(loglikelihood))
-    Splot.likelihoodPlot(ax,likelihood)
-    max_deg = []
-    max_loc = np.where(likelihood==np.amax(likelihood))
+    res = Splot.likelihoodPlot(ax,likelihood)
+
+    max_loc = res[0]
+    val_1sigma_x = res[1]
+    val_2sigma_x = res[2]
+    val_3sigma_x = res[3]
+    val_1sigma_y = res[4]
+    val_2sigma_y = res[5]
+    val_3sigma_y = res[6]
     
     if len(max_loc) == 2:
         max_loc = (max_loc[1],max_loc[0])
         ut.printCoords(max_loc,w)
     else:
         print 'Multiple equally possible locations'
+
+    print 'RA error (arcseconds):'
+    print '  1 sigma: {}'.format((val_1sigma_x[1]-val_1sigma_x[0])*np.abs(w.wcs.cdelt[1])*3600)
+    print '  2 sigma: {}'.format((val_2sigma_x[1]-val_2sigma_x[0])*np.abs(w.wcs.cdelt[1])*3600)
+    print '  3 sigma: {}'.format((val_3sigma_x[1]-val_3sigma_x[0])*np.abs(w.wcs.cdelt[1])*3600)
+    print 'DEC error (arcseconds):'
+    print '  1 sigma: {}'.format((val_1sigma_y[1]-val_1sigma_y[0])*np.abs(w.wcs.cdelt[1])*3600)
+    print '  2 sigma: {}'.format((val_2sigma_y[1]-val_2sigma_y[0])*np.abs(w.wcs.cdelt[1])*3600)
+    print '  3 sigma: {}'.format((val_3sigma_y[1]-val_3sigma_y[0])*np.abs(w.wcs.cdelt[1])*3600)
     plt.show()

@@ -114,3 +114,5 @@ def likelihoodPlot(ax,likelihood):
         
         plt.contour(likelihood,levels=[val_1sigma],zorder=800,colors='cyan')
         plt.contour(likelihood,levels=[val_2sigma],zorder=800,colors='lime')
+
+        return max_loc, val_1sigma_x, val_2sigma_x, val_3sigma_x, val_1sigma_y, val_2sigma_y, val_3sigma_y
