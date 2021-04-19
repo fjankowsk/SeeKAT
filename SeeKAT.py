@@ -186,7 +186,6 @@ if __name__ == "__main__":
     val_3sigma_y = res[6]
     
     if len(max_loc) == 2:
-        max_loc = (max_loc[1],max_loc[0])
         ut.printCoords(max_loc,w)
     else:
         print 'Multiple equally possible locations'
