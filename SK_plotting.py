@@ -70,49 +70,49 @@ def likelihoodPlot(ax,likelihood):
 	#ax.set_ylim(450,670)
         
         likelihood /= likelihood.sum()
-
         ## Calculating the interval values in 2D
         likelihood_flat_sorted = np.sort(likelihood, axis=None)
         likelihood_flat_sorted_cumsum = np.cumsum(likelihood_flat_sorted)
-        ind_1sigma = np.nonzero(likelihood_flat_sorted_cumsum > (1-0.6827))[0][0]
-        ind_2sigma = np.nonzero(likelihood_flat_sorted_cumsum > (1-0.9545))[0][0]
-        ind_3sigma = np.nonzero(likelihood_flat_sorted_cumsum > (1-0.9973))[0][0]
+        ind_1sigma = np.nonzero(likelihood_flat_sorted_cumsum >= (1-0.6827))[0][0]
+        ind_2sigma = np.nonzero(likelihood_flat_sorted_cumsum >= (1-0.9545))[0][0]
+        ind_3sigma = np.nonzero(likelihood_flat_sorted_cumsum >= (1-0.9973))[0][0]
         val_1sigma = likelihood_flat_sorted[ind_1sigma]
         val_2sigma = likelihood_flat_sorted[ind_2sigma]
         val_3sigma = likelihood_flat_sorted[ind_3sigma]
         max_loc = np.where(likelihood==np.amax(likelihood))
         ## When displaying a 2D array, the last index is the last axis, thus we need to flip things here.
         max_loc = [max_loc[1],max_loc[0]]
-        
+
+        plt.contour(likelihood,levels=[val_1sigma],zorder=800,colors='cyan')
+        plt.contour(likelihood,levels=[val_2sigma],zorder=800,colors='lime')
+
         ## Calculating the interval values in 1D for y
         likelihood_1D = likelihood.sum(1)
         likelihood_1D_flat_sorted = np.sort(likelihood_1D, axis=None)
         likelihood_1D_flat_sorted_cumsum = np.cumsum(likelihood_1D_flat_sorted)
-        val_1D_1sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum > (1-0.6827))[0][0]]
-        val_1D_2sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum > (1-0.9545))[0][0]]
-        val_1D_3sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum > (1-0.9973))[0][0]]
-        ind_1D_1sigma = np.nonzero(likelihood_1D > val_1D_1sigma)[0]
-        ind_1D_2sigma = np.nonzero(likelihood_1D > val_1D_2sigma)[0]
-        ind_1D_3sigma = np.nonzero(likelihood_1D > val_1D_3sigma)[0]
+        val_1D_1sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum >= (1-0.6827))[0][0]]
+        val_1D_2sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum >= (1-0.9545))[0][0]]
+        val_1D_3sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum >= (1-0.9973))[0][0]]
+        ind_1D_1sigma = np.nonzero(likelihood_1D >= val_1D_1sigma)[0]
+        ind_1D_2sigma = np.nonzero(likelihood_1D >= val_1D_2sigma)[0]
+        ind_1D_3sigma = np.nonzero(likelihood_1D >= val_1D_3sigma)[0]
         val_1sigma_y = [ind_1D_1sigma[0], ind_1D_1sigma[-1]]
         val_2sigma_y = [ind_1D_2sigma[0], ind_1D_2sigma[-1]]
         val_3sigma_y = [ind_1D_3sigma[0], ind_1D_3sigma[-1]]
-        
+
         ## Calculating the interval values in 1D for x
         likelihood_1D = likelihood.sum(0)
         likelihood_1D_flat_sorted = np.sort(likelihood_1D, axis=None)
         likelihood_1D_flat_sorted_cumsum = np.cumsum(likelihood_1D_flat_sorted)
-        val_1D_1sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum > (1-0.6827))[0][0]]
-        val_1D_2sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum > (1-0.9545))[0][0]]
-        val_1D_3sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum > (1-0.9973))[0][0]]
-        ind_1D_1sigma = np.nonzero(likelihood_1D > val_1D_1sigma)[0]
-        ind_1D_2sigma = np.nonzero(likelihood_1D > val_1D_2sigma)[0]
-        ind_1D_3sigma = np.nonzero(likelihood_1D > val_1D_3sigma)[0]
+        val_1D_1sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum >= (1-0.6827))[0][0]]
+        val_1D_2sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum >= (1-0.9545))[0][0]]
+        val_1D_3sigma = likelihood_1D_flat_sorted[np.nonzero(likelihood_1D_flat_sorted_cumsum >= (1-0.9973))[0][0]]
+        ind_1D_1sigma = np.nonzero(likelihood_1D >= val_1D_1sigma)[0]
+        ind_1D_2sigma = np.nonzero(likelihood_1D >= val_1D_2sigma)[0]
+        ind_1D_3sigma = np.nonzero(likelihood_1D >= val_1D_3sigma)[0]
         val_1sigma_x = [ind_1D_1sigma[0], ind_1D_1sigma[-1]]
         val_2sigma_x = [ind_1D_2sigma[0], ind_1D_2sigma[-1]]
         val_3sigma_x = [ind_1D_3sigma[0], ind_1D_3sigma[-1]]
-        
-        plt.contour(likelihood,levels=[val_1sigma],zorder=800,colors='cyan')
-        plt.contour(likelihood,levels=[val_2sigma],zorder=800,colors='lime')
 
         return max_loc, val_1sigma_x, val_2sigma_x, val_3sigma_x, val_1sigma_y, val_2sigma_y, val_3sigma_y
+        
